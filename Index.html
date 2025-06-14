@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quiz Application</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f9f9f9;
+    }
+    .question {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .answers button {
+      display: block;
+      margin: 5px 0;
+      padding: 10px;
+      width: 100%;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Quiz Application</h1>
+  <div id="quiz-container"></div>
+  <div id="result" class="result"></div>
+
+  <audio id="audio-bonne" src="bonne.mp3"></audio>
+  <audio id="audio-mauvaise" src="mauvaise.mp3"></audio>
+
+  <script>
+    const questions = [
+      {
+        question: "Quelle est la capitale de la France ?",
+        answers: ["Paris", "Londres", "Berlin", "Madrid"],
+        correct: 0
+      },
+      {
+        question: "Quel est le plus grand océan du monde ?",
+        answers: ["Océan Atlantique", "Océan Pacifique", "Océan Indien", "Océan Arctique"],
+        correct: 1
+      },
+      {
+        question: "Quelle planète est appelée la planète rouge ?",
+        answers: ["Terre", "Mars", "Jupiter", "Vénus"],
+        correct: 1
+      },
+      {
+        question: "Qui a peint la Joconde ?",
+        answers: ["Léonard de Vinci", "Michel-Ange", "Raphaël", "Donatello"],
+        correct: 0
+      },
+      {
+        question: "Quelle est la monnaie utilisée au Japon ?",
+        answers: ["Yen", "Dollar", "Euro", "Won"],
+        correct: 0
+      },
+      {
+        question: "Quel est l'élément chimique dont le symbole est 'O' ?",
+        answers: ["Or", "Oxygène", "Osmium", "Oganesson"],
+        correct: 1
+      },
+      {
+        question: "Combien de continents y a-t-il sur Terre ?",
+        answers: ["5", "6", "7", "8"],
+        correct: 2
+      },
+      {
+        question: "En quelle année l'homme a-t-il marché sur la Lune pour la première fois ?",
+        answers: ["1965", "1969", "1972", "1959"],
+        correct: 1
+      },
+      {
+        question: "Quel est le plus grand mammifère terrestre ?",
+        answers: ["Éléphant", "Girafe", "Rhinocéros", "Hippopotame"],
+        correct: 0
+      },
+      {
+        question: "Quel est le symbole chimique de l'eau ?",
+        answers: ["H2O", "O2", "CO2", "HO"],
+        correct: 0
+      },
+      {
+        question: "Qui a écrit 'Les Misérables' ?",
+        answers: ["Victor Hugo", "Émile Zola", "Alexandre Dumas", "Gustave Flaubert"],
+        correct: 0
+      },
+      {
+        question: "Quel est le pays le plus peuplé du monde ?",
+        answers: ["Inde", "États-Unis", "Chine", "Russie"],
+        correct: 2
+      },
+      {
+        question: "Quelle est la langue officielle du Brésil ?",
+        answers: ["Espagnol", "Français", "Portugais", "Anglais"],
+        correct: 2
+      },
+      {
+        question: "Quel gaz les plantes utilisent-elles pour la photosynthèse ?",
+        answers: ["Oxygène", "Azote", "Dioxyde de carbone", "Hydrogène"],
+        correct: 2
+      },
+      {
+        question: "Combien de joueurs y a-t-il dans une équipe de football sur le terrain ?",
+        answers: ["9", "10", "11", "12"],
+        correct: 2
+      },
+      {
+        question: "Quelle est la capitale de l'Australie ?",
+        answers: ["Sydney", "Melbourne", "Canberra", "Brisbane"],
+        correct: 2
+      },
+      {
+        question: "Quel est le plus grand désert du monde ?",
+        answers: ["Sahara", "Gobi", "Antarctique", "Kalahari"],
+        correct: 2
+      },
+      {
+        question: "Qui a inventé l’ampoule électrique ?",
+        answers: ["Nikola Tesla", "Thomas Edison", "Alexander Graham Bell", "Benjamin Franklin"],
+        correct: 1
+      },
+      {
+        question: "Quel est le pays d’origine du tango ?",
+        answers: ["Brésil", "Argentine", "Colombie", "Cuba"],
+        correct: 1
+      },
+      {
+        question: "Quelle est la capitale de l’Italie ?",
+        answers: ["Rome", "Milan", "Venise", "Naples"],
+        correct: 0
+      },
+      {
+        question: "Combien de couleurs y a-t-il dans un arc-en-ciel ?",
+        answers: ["5", "6", "7", "8"],
+        correct: 2
+      },
+      {
+        question: "Quelle est la formule chimique du sel de table ?",
+        answers: ["NaCl", "KCl", "CaCO3", "Na2SO4"],
+        correct: 0
+      },
+      {
+        question: "Quel animal est connu comme le roi de la jungle ?",
+        answers: ["Lion", "Tigre", "Éléphant", "Gorille"],
+        correct: 0
+      },
+      {
+        question: "Quelle est la plus grande planète du système solaire ?",
+        answers: ["Saturne", "Jupiter", "Neptune", "Uranus"],
+        correct: 1
+      },
+      {
+        question: "Quelle est la langue officielle de l’Égypte ?",
+        answers: ["Arabe", "Français", "Anglais", "Hébreu"],
+        correct: 0
+      },
+      {
+        question: "Combien de faces a un cube ?",
+        answers: ["4", "6", "8", "12"],
+        correct: 1
+      },
+      {
+        question: "Qui a écrit 'Roméo et Juliette' ?",
+        answers: ["William Shakespeare", "Victor Hugo", "Molière", "Charles Dickens"],
+        correct: 0
+      },
+      {
+        question: "Quelle est la capitale de l’Espagne ?",
+        answers: ["Madrid", "Barcelone", "Valence", "Séville"],
+        correct: 0
+      },
+      {
+        question: "Quel est l’organe principal du système circulatoire humain ?",
+        answers: ["Foie", "Cœur", "Rein", "Poumon"],
+        correct: 1
+      },
+      {
+        question: "Quel métal est liquide à température ambiante ?",
+        answers: ["Mercure", "Fer", "Cuivre", "Aluminium"],
+        correct: 0
+      },
+      {
+        question: "Quel est le plus long fleuve du monde ?",
+        answers: ["Nil", "Amazon", "Yangtsé", "Mississippi"],
+        correct: 1
+      }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+
+    const quizContainer = document.getElementById("quiz-container");
+    const resultDiv = document.getElementById("result");
+    const audioBonne = document.getElementById("audio-bonne");
+    const audioMauvaise = document.getElementById("audio-mauvaise");
+
+    function showQuestion() {
+      const q = questions[currentQuestion];
+      quizContainer.innerHTML = `
+        <div class="question">${q.question}</div>
+        <div class="answers">
+          ${q.answers.map((answer, i) => `<button onclick="selectAnswer(${i})">${answer}</button>`).join('')}
+        </div>
+      `;
+      resultDiv.textContent = "";
+    }
+
+    function selectAnswer(index) {
+      const q = questions[currentQuestion];
+      if(index === q.correct){
+        score++;
+        audioBonne.play();
+        resultDiv.textContent = "Bonne réponse !";
+        resultDiv.style.color = "green";
+      } else {
+        audioMauvaise.play();
+        resultDiv.textContent = "Mauvaise réponse.";
+        resultDiv.style.color = "red";
+      }
+      currentQuestion++;
+      if(currentQuestion < questions.length){
+        setTimeout(showQuestion, 1500);
+      } else {
+        setTimeout(showScore, 1500);
+      }
+    }
+
+    function showScore(){
+      quizContainer.innerHTML = `<h2>Ton score est ${score} sur ${questions.length}</h2>`;
+      resultDiv.textContent = "";
+    }
+
+    showQuestion();
+  </script>
+</body>
+</html>
