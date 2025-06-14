@@ -1,1 +1,245 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quiz Challenge Complet</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #3a8dde, #70b9ff);
+      color: #fff;
+      margin: 0;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+    h1 {
+      margin-bottom: 20px;
+      font-weight: 700;
+      text-shadow: 1px 1px 5px #004a8f;
+    }
+    .question {
+      font-size: 24px;
+      margin-bottom: 30px;
+      max-width: 600px;
+      text-shadow: 1px 1px 3px #003766;
+    }
+    #choices {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      width: 100%;
+      max-width: 600px;
+    }
+    button.choice {
+      background-color: #fff;
+      color: #1a73e8;
+      font-size: 18px;
+      padding: 15px 20px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+      transition: background-color 0.3s ease;
+      user-select: none;
+    }
+    button.choice:hover {
+      background-color: #cde4ff;
+    }
+    #resultat {
+      margin-top: 25px;
+      font-size: 20px;
+      min-height: 30px;
+      font-weight: 600;
+      text-shadow: 1px 1px 3px #002752;
+    }
+    #score-final {
+      margin-top: 40px;
+      font-size: 22px;
+      font-weight: 700;
+      text-shadow: 1px 1px 3px #002752;
+    }
+    #rejouer {
+      margin-top: 30px;
+      background-color: #fff;
+      color: #1a73e8;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+      user-select: none;
+      display: none;
+      transition: background-color 0.3s ease;
+    }
+    #rejouer:hover {
+      background-color: #cde4ff;
+    }
 
+    /* Responsive */
+    @media (max-width: 480px) {
+      .question {
+        font-size: 20px;
+      }
+      button.choice {
+        font-size: 16px;
+        padding: 12px 16px;
+      }
+      #score-final {
+        font-size: 20px;
+      }
+      #rejouer {
+        font-size: 16px;
+        padding: 10px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Quiz Challenge Complet</h1>
+  <div class="question" id="question">Chargement...</div>
+  <div id="choices"></div>
+  <div id="resultat"></div>
+  <div id="score-final"></div>
+  <button id="rejouer" onclick="recommencer()">Rejouer</button>
+
+  <!-- Sons pour feedback -->
+  <audio id="sonBonne" src="bonne.mp3" preload="auto"></audio>
+  <audio id="sonMauvaise" src="mauvaise.mp3" preload="auto"></audio>
+
+  <script>
+    const toutesLesQuestions = [
+      {
+        texte: "Quel est le pays d’origine de Didier Drogba ?",
+        choix: ["France", "Côte d’Ivoire", "Brésil", "Maroc"],
+        bonneReponse: "Côte d’Ivoire"
+      },
+      {
+        texte: "Combien font 5 × 6 ?",
+        choix: ["30", "56", "11", "25"],
+        bonneReponse: "30"
+      },
+      {
+        texte: "Quel est le plus grand continent ?",
+        choix: ["Europe", "Afrique", "Asie", "Amérique"],
+        bonneReponse: "Asie"
+      },
+      {
+        texte: "Qui a inventé Facebook ?",
+        choix: ["Elon Musk", "Mark Zuckerberg", "Bill Gates", "Steve Jobs"],
+        bonneReponse: "Mark Zuckerberg"
+      },
+      {
+        texte: "Quelle est la capitale du Cameroun ?",
+        choix: ["Yaoundé", "Douala", "Abidjan", "Bamako"],
+        bonneReponse: "Yaoundé"
+      },
+      {
+        texte: "Quel langage est utilisé pour créer des sites web ?",
+        choix: ["Python", "HTML", "Swift", "C++"],
+        bonneReponse: "HTML"
+      },
+      {
+        texte: "Combien de côtés a un hexagone ?",
+        choix: ["4", "5", "6", "8"],
+        bonneReponse: "6"
+      },
+      {
+        texte: "Qui est le président de la Côte d'Ivoire en 2024 ?",
+        choix: ["Guillaume Soro", "Laurent Gbagbo", "Alassane Ouattara", "Didier Drogba"],
+        bonneReponse: "Alassane Ouattara"
+      },
+      {
+        texte: "Quelle planète est la plus proche du Soleil ?",
+        choix: ["Terre", "Vénus", "Mars", "Mercure"],
+        bonneReponse: "Mercure"
+      },
+      {
+        texte: "Que veut dire 'WWW' ?",
+        choix: ["World Web Wide", "Wide World Web", "World Wide Web", "Web World Wide"],
+        bonneReponse: "World Wide Web"
+      }
+    ];
+
+    let questions = [];
+    let index = 0;
+    let score = 0;
+
+    // Mélange un tableau (Fisher-Yates)
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    // Affiche la question actuelle et ses choix
+    function afficherQuestion() {
+      document.getElementById("resultat").innerText = "";
+      const q = questions[index];
+      document.getElementById("question").innerText = `Q${index + 1} : ${q.texte}`;
+
+      const choixHTML = q.choix.map(choix => `
+        <button class="choice" onclick="verifier('${choix}')">${choix}</button>
+      `).join("");
+
+      document.getElementById("choices").innerHTML = choixHTML;
+    }
+
+    // Vérifie la réponse donnée
+    function verifier(reponse) {
+      const bonne = questions[index].bonneReponse;
+      const sonBonne = document.getElementById("sonBonne");
+      const sonMauvaise = document.getElementById("sonMauvaise");
+
+      if (reponse === bonne) {
+        score++;
+        document.getElementById("resultat").innerText = "✅ Bonne réponse !";
+        sonBonne.currentTime = 0;
+        sonBonne.play();
+      } else {
+        document.getElementById("resultat").innerText = `❌ Mauvaise réponse ! La bonne réponse était : "${bonne}".`;
+        sonMauvaise.currentTime = 0;
+        sonMauvaise.play();
+      }
+
+      index++;
+      if (index < questions.length) {
+        setTimeout(afficherQuestion, 1300);
+      } else {
+        setTimeout(finQuiz, 1300);
+      }
+    }
+
+    // Affiche le score final et bouton rejouer
+    function finQuiz() {
+      document.getElementById("question").innerText = "Quiz terminé ! 🎉";
+      document.getElementById("choices").innerHTML = "";
+      document.getElementById("resultat").innerText = "";
+      document.getElementById("score-final").innerText = `Ton score : ${score} / ${questions.length}`;
+      document.getElementById("rejouer").style.display = "inline-block";
+    }
+
+    // Redémarre le quiz
+    function recommencer() {
+      index = 0;
+      score = 0;
+      document.getElementById("score-final").innerText = "";
+      document.getElementById("rejouer").style.display = "none";
+      questions = [...toutesLesQuestions];
+      shuffle(questions);
+      afficherQuestion();
+    }
+
+    // Lancer au chargement
+    recommencer();
+  </script>
+</body>
+</html>content://com.android.externalstorage.documents/tree/primary%3AEsprit%20::primary:Esprit /Quiz.html
